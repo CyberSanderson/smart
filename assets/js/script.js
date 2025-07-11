@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // 🔁 Set this to your actual deployed Vercel URL
-  const ENDPOINT = 'https://smart-7q3i-cxrlozard-cybersandersons-projects.vercel.app/'; // <- replace this
+  // CHANGE THIS to your deployed Vercel URL
+  const ENDPOINT = 'https://smart-7q3i-cxrlozard-cybersandersons-projects.vercel.app//api/recommend';
 
   quizForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -49,11 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
 
       if (data.recommendation) {
-        resultEl.textContent = `✅ ${data.recommendation}`;
+        // 🎯 Display the AI recommendation!
+        resultEl.textContent = data.recommendation;
       } else if (data.error) {
         resultEl.textContent = `⚠️ Error: ${data.error}`;
       } else {
-        resultEl.textContent = "⚠️ No recommendation received.";
+        resultEl.textContent = "⚠️ Sorry, no recommendation received.";
       }
 
     } catch (error) {
@@ -62,5 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
 
 
