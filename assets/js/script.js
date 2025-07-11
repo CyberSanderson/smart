@@ -3,8 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultEl = document.getElementById('result');
 
   if (!quizForm || !resultEl) {
-    console.log("🔎 Loaded OPENAI_API_KEY:", process.env.OPENAI_API_KEY ? "✅ present" : "❌ missing");
-;
+    console.error("❌ quizForm or result element not found in the DOM.");
     return;
   }
 
@@ -14,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     const form = e.target;
+
+    // Grab all form values
     const use_case = form.use_case.value;
     const experience = form.experience.value;
     const budget = form.budget.value;
@@ -22,39 +23,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const priority = form.priority.value;
     const maintenance = form.maintenance.value;
 
+    // Build the answers array EXACTLY as your API expects
     const answers = [
       `Use case: ${use_case}`,
       `Experience: ${experience}`,
       `Budget: ${budget}`,
       `Build size: ${size}`,
-      `Features: ${features.join(", ") || "None"}`,
+      `Features: ${features.length > 0 ? features.join(", ") : "None"}`,
       `Priority: ${priority}`,
       `Maintenance preference: ${maintenance}`
     ];
 
+    // Show loading message
     resultEl.textContent = "🔍 Generating your personalized recommendation... Please wait.";
 
     try {
       const response = await fetch(ENDPOINT, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ answers })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers })  // ✅ matches what the server expects
       });
 
       if (!response.ok) {
+        // Try to get error details
         const contentType = response.headers.get("content-type");
-        let errorText = "Unknown error";
-
+        let errorText = "Unknown server error.";
         if (contentType && contentType.includes("application/json")) {
           const errorData = await response.json();
           errorText = errorData.error || JSON.stringify(errorData);
         } else {
           errorText = await response.text();
         }
-
-        throw new Error(`❌ Server returned ${response.status}: ${errorText}`);
+        throw new Error(`Server returned ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
