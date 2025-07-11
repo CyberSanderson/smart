@@ -6,23 +6,27 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { answers } = req.body;
-
-  if (!answers || !Array.isArray(answers)) {
-    return res.status(400).json({ error: 'Invalid request body' });
-  }
-
   try {
-    // Build a clear prompt for the AI
+    const { answers } = req.body;
+
+    if (!answers || !Array.isArray(answers)) {
+      return res.status(400).json({ error: 'Invalid request body' });
+    }
+
+    console.log("Received answers:", answers);
+
+    // Build prompt for OpenAI
     const prompt = `
-You are a 3D printer buying assistant. Recommend the perfect 3D printer based on the following user answers:
+You are a 3D printer buying assistant. Recommend the best 3D printer based on these user answers:
 
 ${answers.join('\n')}
 
-Format your answer as helpful buying advice with specific models, price ranges, and reasoning.
+Please respond with a short, clear buying recommendation. Include:
+- Specific model suggestions if appropriate
+- Price range
+- Key reasons for the choice
 `;
 
-    // Call OpenAI Chat Completion
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
@@ -32,9 +36,10 @@ Format your answer as helpful buying advice with specific models, price ranges, 
       temperature: 0.7
     });
 
-    const recommendation = completion.choices[0].message.content;
+    const recommendation = completion.choices[0].message.content.trim();
 
-    // Return just the recommendation text
+    console.log("Generated recommendation:", recommendation);
+
     return res.status(200).json({ recommendation });
 
   } catch (error) {
@@ -42,5 +47,6 @@ Format your answer as helpful buying advice with specific models, price ranges, 
     return res.status(500).json({ error: 'Server error generating recommendation' });
   }
 }
+
 
 
