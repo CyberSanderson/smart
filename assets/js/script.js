@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultEl = document.getElementById('result');
 
   if (!quizForm || !resultEl) {
-    console.error("❌ quizForm or result element not found in the DOM.");
+    console.log("🔎 Loaded OPENAI_API_KEY:", process.env.OPENAI_API_KEY ? "✅ present" : "❌ missing");
+;
     return;
   }
 
