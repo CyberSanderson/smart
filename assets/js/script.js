@@ -3,11 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultEl = document.getElementById('result');
 
   if (!quizForm || !resultEl) {
-    console.error("Error: quizForm or result element not found in the DOM.");
+    console.error("❌ quizForm or result element not found in the DOM.");
     return;
   }
 
-  // ✅ FIX: No double slash!
   const ENDPOINT = 'https://smart-7q3i-cxrlozard-cybersandersons-projects.vercel.app/api/recommend';
 
   quizForm.addEventListener('submit', async (e) => {
@@ -37,13 +36,24 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const response = await fetch(ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ answers })
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server returned ${response.status}: ${errorText}`);
+        const contentType = response.headers.get("content-type");
+        let errorText = "Unknown error";
+
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          errorText = errorData.error || JSON.stringify(errorData);
+        } else {
+          errorText = await response.text();
+        }
+
+        throw new Error(`❌ Server returned ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
@@ -57,11 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
     } catch (error) {
-      console.error(error);
+      console.error("❌ Client-side error:", error);
       resultEl.textContent = "❌ Error generating recommendation. Please try again later.";
     }
   });
 });
+
 
 
 
