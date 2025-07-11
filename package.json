@@ -1,0 +1,23 @@
+{
+  "name": "3dprinter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CyberSanderson/smart.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CyberSanderson/smart/issues"
+  },
+  "homepage": "https://github.com/CyberSanderson/smart#readme",
+  "description": "",
+  "dependencies": {
+    "openai": "^5.9.0"
+  }
+}
