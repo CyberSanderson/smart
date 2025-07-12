@@ -20,47 +20,51 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid request body. "answers" must be an array.' });
   }
 
-  // Build the user-facing prompt
+  // ✅ Improved, stricter prompt
   const prompt = `
-Based on the user's answers below, recommend the best 2–3 specific 3D printer models, with realistic price ranges in USD.
-Include brand and model name.
-Justify your recommendation for each.
+You are to act as a professional 3D printer buying advisor. 
+Below is a summary of what the user needs. 
+Your job is to choose real, available 3D printer models in 2024 that best match the user's needs. 
+You MUST provide at least two specific brand and model names, with realistic price ranges in USD, and justify why each is a good fit.
 
-User answers:
-${answers.join('\n')}
-
-Respond in this format:
+Important instructions:
+- Do NOT repeat the user's answers.
+- ONLY output your recommendations in this format:
 
 **Recommended Models**
 1. [Brand & Model] - $Price Range
-   - Why it's good for the user's needs
+   - Justification
 
 2. [Brand & Model] - $Price Range
-   - Why it's good for the user's needs
+   - Justification
 
 3. [Optional] [Brand & Model] - $Price Range
-   - Why it's good for the user's needs
+   - Justification
+
+User needs summary:
+${answers.join('\n')}
 `;
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",         // ✅ Upgrade to gpt-4o
+      temperature: 0.3,         // ✅ Slightly lower temperature for precision
       messages: [
         {
           role: "system",
           content: `
-You are a professional 3D printer buying advisor.
-Your job is to recommend specific 3D printer models, price ranges (USD), and clear reasoning based on user needs.
-Always include at least 2–3 concrete model names with realistic price estimates (USD) available in 2024.
-Be confident and helpful.
+You are a professional 3D printer buying advisor. 
+You MUST recommend specific real-world 3D printer models with realistic USD price ranges. 
+Never just repeat the user's answers. 
+Always transform their needs into specific, actionable recommendations with brand and model names available in 2024.
+Respond only in the requested format.
 `
         },
         {
           role: "user",
           content: prompt
         }
-      ],
-      temperature: 0.7
+      ]
     });
 
     const recommendation = completion.choices[0].message.content?.trim();
@@ -76,3 +80,4 @@ Be confident and helpful.
     return res.status(500).json({ error: 'Server error generating recommendation.' });
   }
 }
+
